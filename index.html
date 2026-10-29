@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>متفلتش!</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif;text-align:center}
+.game{max-width:440px;margin:auto;padding:12px}
+h1{color:#55e6a5}
+.stats{display:flex;justify-content:space-between;margin:12px 0;font-size:18px}
+#arena{height:60vh;min-height:330px;max-height:550px;position:relative;overflow:hidden;background:#202f46;border:3px solid #55e6a5;border-radius:16px;touch-action:none}
+#player{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:36px;z-index:2}
+.obstacle{position:absolute;top:-35px;font-size:30px}
+#message{position:absolute;inset:0;background:#101827dd;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3}
+#message p{padding:0 12px}
+button{border:0;border-radius:12px;padding:14px 22px;font-size:18px;font-weight:bold;background:#55e6a5;color:#101827;touch-action:manipulation}
+.controls{display:flex;justify-content:center;gap:24px;margin-top:16px}
+.controls button{width:100px;font-size:26px}
+.game p{color:#cbd5e1}
+</style>
+</head>
+<body>
+<div class="game">
+<h1>متفلتش! 🎮</h1>
+<div class="stats">
+<span>النقاط: <span id="score">0</span></span>
+<span id="status">جاهز؟</span>
+</div>
+<div id="arena">
+<div id="player">🟦</div>
+<div id="message">
+<h2>متفلتش!</h2>
+<p>اتحرك وتفادى العقبات</p>
+<button id="start">ابدأ اللعب</button>
+</div>
+</div>
+<div class="controls">
+<button id="left">⬅️</button>
+<button id="right">➡️</button>
+</div>
+<p>حرّك اللاعب بإصبعك أو بالأسهم</p>
+</div>
+<script>
+const arena=document.getElementById("arena");
+const player=document.getElementById("player");
+const scoreText=document.getElementById("score");
+const statusText=document.getElementById("status");
+const message=document.getElementById("message");
+let playing=false,score=0,playerX=50,obstacles=[],lastTime=0,spawnTime=0,animationId=0;
+function movePlayer(x){playerX=Math.max(6,Math.min(94,x));player.style.left=playerX+"%"}
+function clearObstacles(){obstacles.forEach(o=>o.el.remove());obstacles=[]}
+function endGame(){playing=false;cancelAnimationFrame(animationId);statusText.textContent="انتهت اللعبة";message.style.display="flex";message.querySelector("h2").textContent="خسرت! 😅";message.querySelector("p").textContent="نتيجتك: "+score+" نقطة";document.getElementById("start").textContent="العب تاني"}
+function spawnObstacle(){const el=document.createElement("div");el.className="obstacle";el.textContent="🟥";const x=5+Math.random()*90;el.style.left=x+"%";arena.appendChild(el);obstacles.push({el,x,y:-35})}
+function gameLoop(time){
+if(!playing)return;
+const dt=Math.min((time-lastTime)/16.67||1,2);lastTime=time;spawnTime+=dt;
+if(spawnTime>Math.max(18,48-score/3)){spawnObstacle();spawnTime=0}
+const h=arena.clientHeight,playerY=h-50,speed=3+Math.min(score/20,5);
+for(let i=obstacles.length-1;i>=0;i--){
+const o=obstacles[i];o.y+=speed*dt;o.el.style.top=o.y+"px";
+const hitX=Math.abs(o.x/100*arena.clientWidth-playerX/100*arena.clientWidth)<28;
+const hitY=o.y+25>=playerY&&o.y<playerY+35;
+if(hitX&&hitY){endGame();return}
+if(o.y>h){o.el.remove();obstacles.splice(i,1);score++;scoreText.textContent=score}
+}
+animationId=requestAnimationFrame(gameLoop)
+}
+document.getElementById("start").addEventListener("click",()=>{
+cancelAnimationFrame(animationId);clearObstacles();score=0;playerX=50;spawnTime=0;lastTime=0;scoreText.textContent="0";statusText.textContent="العب!";movePlayer(50);message.style.display="none";playing=true;animationId=requestAnimationFrame(gameLoop)
+});
+document.getElementById("left").addEventListener("click",()=>movePlayer(playerX-10));
+document.getElementById("right").addEventListener("click",()=>movePlayer(playerX+10));
+let dragging=false;
+arena.addEventListener("pointerdown",e=>{if(!playing)return;dragging=true;arena.setPointerCapture(e.pointerId);moveFromPointer(e)});
+arena.addEventListener("pointermove",e=>{if(playing&&dragging)moveFromPointer(e)});
+arena.addEventListener("pointerup",()=>dragging=false);
+arena.addEventListener("pointercancel",()=>dragging=false);
+function moveFromPointer(e){const r=arena.getBoundingClientRect();movePlayer((e.clientX-r.left)/r.width*100)}
+</script>
+</body>
+</html>
