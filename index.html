@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101827">
+<link rel="manifest" href="/motafaltsh-game/manifest.json">
 <title>متفلتش!</title>
 <style>
 *{box-sizing:border-box}
@@ -80,6 +81,13 @@ arena.addEventListener("pointermove",e=>{if(playing&&dragging)moveFromPointer(e)
 arena.addEventListener("pointerup",()=>dragging=false);
 arena.addEventListener("pointercancel",()=>dragging=false);
 function moveFromPointer(e){const r=arena.getBoundingClientRect();movePlayer((e.clientX-r.left)/r.width*100)}
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/motafaltsh-game/sw.js");
+  });
+}
 </script>
 </body>
 </html>
