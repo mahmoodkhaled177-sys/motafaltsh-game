@@ -1,2 +1,3 @@
-# motafaltsh-game
-Motafaltsh-A simple mobile game.
+: daleel-masr-altibi
+
+دليل مصر الطبي للمستشفيات والوحدات الصحية
