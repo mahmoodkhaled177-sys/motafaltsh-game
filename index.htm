@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دليل مصر الطبي</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f7f7;
+      margin: 0;
+      color: #183b40;
+    }
+    header {
+      background: #087e8b;
+      color: white;
+      text-align: center;
+      padding: 25px 15px;
+    }
+    main {
+      max-width: 650px;
+      margin: 20px auto;
+      padding: 15px;
+    }
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #ccdada;
+      border-radius: 10px;
+      font-size: 16px;
+      background: white;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      box-shadow: 0 2px 8px #0000000d;
+    }
+    .note {
+      background: #fff2cc;
+      padding: 12px;
+      border-radius: 10px;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>✚ دليل مصر الطبي</h1>
+    <p>اعرف أقرب منشأة طبية ليك</p>
+  </header>
+
+  <main>
+    <div class="note">
+      نسخة تجريبية. بيانات المنشآت والمواعيد
+      هتتضاف بعد مراجعتها من مصادر رسمية.
+    </div>
+
+    <h2>ابحث عن منشأة طبية</h2>
+
+    <input
+      id="search"
+      type="search"
+      placeholder="اكتب اسم المستشفى أو المنطقة..."
+    >
+
+    <select id="type">
+      <option value="all">كل المنشآت</option>
+      <option value="مستشفى">مستشفيات</option>
+      <option value="وحدة صحية">وحدات صحية</option>
+      <option value="مركز طبي">مراكز طبية</option>
+    </select>
+
+    <div id="results"></div>
+  </main>
+
+  <script>
+    const facilities = [];
+
+    const search = document.getElementById("search");
+    const type = document.getElementById("type");
+    const results = document.getElementById("results");
+
+    function render() {
+      const query = search.value.trim().toLowerCase();
+
+      const filtered = facilities.filter(item => {
+        const matchesText =
+          (item.name + " " + item.area)
+          .toLowerCase().includes(query);
+
+        const matchesType =
+          type.value === "all" ||
+          item.type === type.value;
+
+        return matchesText && matchesType;
+      });
+
+      results.innerHTML = filtered.length
+        ? filtered.map(item => `
+            <div class="card">
+              <h3>${item.name}</h3>
+              <p>المنطقة: ${item.area}</p>
+              <p>النوع: ${item.type}</p>
+            </div>
+          `).join("")
+        : '<div class="card">مفيش بيانات مضافة لسه.</div>';
+    }
+
+    search.addEventListener("input", render);
+    type.addEventListener("change", render);
+
+    render();
+  </script>
+</body>
+</html>
